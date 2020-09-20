@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do Application</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+</head>
+<style>
+    .note{
+        width:350px;
+        height: 250px;
+        border-radius: 20px;
+        background-image: url("https://www.workflowmax.com/hubfs/6-things-to-do-list.png");
+        background-repeat: no-repeat;
+        background-size: 700px;
+        padding: 15px;
+        border: 5px solid green;
+        box-shadow: 2px 6px 12 px  black;
+        margin-left: 300px;
+
+    }
+    .icon{
+        font-size: 150px;
+        text-decoration: darkturquoise;
+        color:darkorange;
+        margin-left: 390px;
+        cursor: pointer;
+    }
+
+    .icon:hover{
+        color:darkorchid;
+    }
+    body{
+        background-image: url('https://i.pinimg.com/736x/14/f5/5f/14f55f63fb0d7a10e8495938346057b4.jpg');
+        background-size: cover;
+    }
+    .edit{
+        font-size: 30px;
+        cursor: pointer;
+    }
+    .del{
+        font-size: 30px;
+        cursor: pointer;
+    }
+    .save{
+        font-size: 30px;
+        cursor: pointer;
+    }
+    textarea{
+        width: 300px;
+        height: 200px;
+    }
+</style>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+
+class Note extends React.Component{
+
+    constructor(props){
+        super(props)
+        this.state = {
+            editing: false
+        }
+    }
+
+    edit = () => {
+       this.setState({ editing: true})
+    }
+    save = () => {
+       this.props.onChange(this.refs.newText.value, this.props.id)
+       this.setState({editing: false})
+    }
+    delete = (id) => {
+       this.props.onRemove(this.props.id)
+    }
+
+    renderForm = () =>{
+            return(
+                <div className="note">
+                <textarea ref="newText"></textarea><br/>
+                <span className="save"> <i class="fa fa-floppy-o" aria-hidden="true" onClick={this.save} ></i></span>
+                </div>
+            )
+    }
+
+    renderDisplay = () =>{
+        return(
+            <div className="note">
+            <p>{this.props.children}</p>
+            <span><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+           <span className="edit"> <i class="fa fa-pencil-square" aria-hidden="true" onClick={this.edit}></i></span>
+           <span className="del"> <i class="fa fa-trash" aria-hidden="true" onClick={this.delete} ></i></span>
+            
+            </span>
+
+            </div>
+        )
+    }
+
+    render(){
+        if(this.state.editing){
+            return this.renderForm()
+        }
+        else{
+            return this.renderDisplay()
+        }
+    }
+}
+ReactDOM.render(<Note></Note>, document.getElementById('root'))
+
+class Board extends React.Component{
+
+    constructor(props){
+        super(props);
+        this.state = {
+            notes: []
+        }
+    }
+
+    nextId = () => {
+        this.uniqueId = this.uniqueId || 0
+        return this.uniqueId++
+    }
+
+    add = (text) => {
+        var notes = [
+            ...this.state.notes,
+            {
+                id: this.nextId(),
+                note: text
+            }
+        ]
+        this.setState({notes})
+    }
+
+    update = ( newText, id ) => {
+        var notes = this.state.notes.map(
+            note => (note.id !== id) ?
+            note:
+            {
+                ...note,
+                note: newText
+            }
+        )
+        this.setState({notes})
+    }
+
+    remove = ( id ) => {
+        var notes = this.state.notes.filter(note => note.id !== id)
+        this.setState({notes})
+    }
+    eachNote = ( note ) => {
+        return (<Note key={note.id} id={note.id} onChange={this.update} onRemove={this.remove}>{note.note}</Note>)
+    }
+
+    render(){
+        return(
+            <div className="board">
+            {this.state.notes.map(this.eachNote)}
+            <span class="icon"><i class="fa fa-calendar-plus-o" aria-hidden="true" onClick={()=>this.add()}></i></span>
+            </div>
+        )
+    }
+}
+ReactDOM.render(<Board count={10}/>, document.getElementById( 'root' ))
+</script>
+
+</body>
+    
+</html>
